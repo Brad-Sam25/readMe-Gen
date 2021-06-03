@@ -1,11 +1,11 @@
 // TODO: Include packages needed for this application
 const inquirer = require('inquirer');
-const inq = require('inquirer');
 const mdGenerator = require('./utils/generateMarkdown');
-const fs = require =('fs');
+const fs = require('fs');
+const axios = require('axios');
 
-// TODO: Create an array of questions for user input
-const questions = [
+
+inquirer.prompt([
     {
         type: "input",
         name: "title",
@@ -45,7 +45,7 @@ const questions = [
     {
         type: "input",
         name: "questions",
-        message: "How shopuld I contact you when this is an issue?"
+        message: "How should I contact you when this is an issue?"
     },
     {
         type: "input",
@@ -55,26 +55,23 @@ const questions = [
     {
         type: "input",
         name: "email",
-        message: "PLease provide  your email address?"
+        message: "Please provide  your email address?"
     }
-];
+])
+    .then(response => {
+        // console.log(response)
+        
+        let queryUrl = `https://api.github.com/licenses/${response.license}`
+        let endUrl = null;
 
-// TODO: Create a function to write README file
-function writeToFile(fileName, data) {
-    fs.genToFile(fileName,data, err => {
-        if(err) console.log(err)
-        else console.log("Success!")
+        axios.get(queryUrl)
+            .then(res => {
+                console.log(res.data.html_url);
+                    endUrl = res.data.html_url
+                    fs.writeFileSync(`./utils/generateMarkdown.md`,mdGenerator(response, endUrl), err => {
+                        if(err) console.log(err)
+                        else console.log("Success!")
+                    })
+            })
     })
-}
 
-// TODO: Create a function to initialize app
-const genFileAsync = mdGenerator.promisify(writeToFile);
-
-function init() {
-try {
-    let userInput = await inquirer.prompt(questions)
-}
-}
-
-// Function call to initialize app
-init();
